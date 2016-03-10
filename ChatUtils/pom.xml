@@ -12,14 +12,16 @@
     <artifactId>ChatUtils</artifactId>
 
     <build>
+        <outputDirectory>${project.build.directory}/libs/</outputDirectory>
         <resources>
             <resource>
-                <directory>src/main/java</directory>
+                <directory>../resource</directory>
                 <includes>
-                    <include>**/**/*.properties</include>
+                    <include>**</include>
                 </includes>
             </resource>
         </resources>
+
 
         <plugins>
             <plugin>
@@ -29,6 +31,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>property.PropertiesLoader</mainClass>
                         </manifest>
                         <manifestEntries>

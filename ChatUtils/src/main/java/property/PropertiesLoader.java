@@ -1,5 +1,7 @@
 package property;
 
+
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,8 +14,9 @@ public class PropertiesLoader {
     public static Properties properties = new Properties();
 
     static {
+
         try {
-            properties.load(new FileReader("protocolConstans.properties"));
+            properties.load(new FileReader("libs/protocolConstans.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -23,4 +26,11 @@ public class PropertiesLoader {
         return properties;
     }
 
+    public static void main(String[] args){
+        File file=new File("libs/protocolConstans.properties");
+        System.out.println(file.getAbsolutePath());
+        for(File f:file.listFiles()){
+            System.out.println(f.getName());
+        }
+    }
 }

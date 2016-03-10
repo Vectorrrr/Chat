@@ -21,7 +21,7 @@ public class Client {
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
             new Thread(new Recipient(socket)).start();
-            System.out.println("Type your message I send it to the server if you want exit write Buy");
+            System.out.println("Type your message I send it to the server if you want exit write Bye");
 
             String message;
             while (true) {
