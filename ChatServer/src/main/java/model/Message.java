@@ -7,6 +7,7 @@ public class Message {
     private String text;
     private int idAuthor;
 
+
     public Message(String text, int idAuthor) {
         this.text = text;
         this.idAuthor = idAuthor;

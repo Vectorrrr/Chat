@@ -30,7 +30,7 @@ public class Recipient implements Runnable {
     }
 
     public void run() {
-        String exit = PropertiesLoader.getProperties().getProperty("serverAnswerDisconnect");
+        String exit = PropertiesLoader.getServerAnswerDisconect();
         while (true) {
             try {
                 String text = reader.readUTF();

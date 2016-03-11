@@ -22,14 +22,18 @@ public class PropertiesLoader {
         }
     }
 
-    public static Properties getProperties() {
-        return properties;
+    public static String getClientAnswerDisconect() {
+        return properties.getProperty("client.answer.disconnect");
     }
 
-    public static void main(String[] args){
-        File file=new File("libs/protocolConstans.properties");
+    public static String getServerAnswerDisconect() {
+        return properties.getProperty("server.answer.disconnect");
+    }
+
+    public static void main(String[] args) {
+        File file = new File("libs/protocolConstans.properties");
         System.out.println(file.getAbsolutePath());
-        for(File f:file.listFiles()){
+        for (File f : file.listFiles()) {
             System.out.println(f.getName());
         }
     }

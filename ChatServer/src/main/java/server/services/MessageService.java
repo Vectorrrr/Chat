@@ -19,8 +19,8 @@ public class MessageService {
         return allMessage.pop();
     }
 
-    public void addMessage(Message message) {
-        allMessage.add(message);
+    public void pushMessage(Message message) {
+        allMessage.push(message);
     }
 }
 

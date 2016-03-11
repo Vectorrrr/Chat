@@ -17,7 +17,7 @@ import java.util.Properties;
  * Created by igladush on 07.03.16.
  */
 public class Compound extends Thread {
-    private final String ERROR_READ_OR_WRITE = "When I read or write I have error";
+    private final String ERROR_READ_OR_WRITE = "When I readd or write I have error";
     private final String ERROR_CLOSE_STREAM = "When I close stream  I have ERROR";
 
     private MessageService messageService;
@@ -41,6 +41,7 @@ public class Compound extends Thread {
     /**
      * This method send some string for this Compound
      */
+    //todo close stream and delete compound
     public void send(String s) {
         try {
             writer.writeUTF(s);
@@ -52,7 +53,7 @@ public class Compound extends Thread {
     @Override
     public void run() {
         createStreams();
-        read();
+        readWhileNotInterupted();
         closeAllStreams();
         server.removeCompound(this);
         System.out.println("I closed the clint " + this.idCompound);
@@ -77,9 +78,9 @@ public class Compound extends Thread {
      * when co,pound send exit word, this method send secret word for client
      * this word signals client, that server stopped this socket correct
      */
-    private void read() {
-        Properties properties = PropertiesLoader.getProperties();
-        String clientExitWord = properties.getProperty("clientAnswerDisconnect");
+    private void readWhileNotInterupted() {
+
+        String clientExitWord = PropertiesLoader.getClientAnswerDisconect();
         String message;
 
         while (true) try {
@@ -87,13 +88,15 @@ public class Compound extends Thread {
             System.out.println(message);
 
             if (clientExitWord.equals(message)) {
-                writer.writeUTF(properties.getProperty("serverAnswerDisconnect"));
+                writer.writeUTF(PropertiesLoader.getServerAnswerDisconect());
                 break;
             }
-            messageService.addMessage(new Message(message, idCompound));
+            messageService.pushMessage(new Message(message, idCompound));
         } catch (IOException e) {
             System.out.println(ERROR_READ_OR_WRITE);
             e.printStackTrace();
+            server.removeCompound(this);
+            break;
         }
 
     }
@@ -105,11 +108,13 @@ public class Compound extends Thread {
     }
 
     private void closeStream(Closeable stream) {
-        try {
-            stream.close();
-        } catch (IOException e) {
-            System.out.println(ERROR_CLOSE_STREAM);
-            e.printStackTrace();
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                System.out.println(ERROR_CLOSE_STREAM);
+                e.printStackTrace();
+            }
         }
 
     }

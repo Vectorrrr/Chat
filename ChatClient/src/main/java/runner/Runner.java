@@ -1,6 +1,10 @@
 package runner;
 
 import client.Client;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Scanner;
 
 /**
@@ -14,6 +18,7 @@ public class Runner {
         System.out.println("Input port server");
         int port = sc.nextInt();
         new Client().runClient(port, address);
+        sc.close();
 
 
     }
