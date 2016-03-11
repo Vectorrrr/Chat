@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
+ * this class allow download some properties
  * Created by igladush on 07.03.16.
  */
 public class PropertiesLoader {
@@ -22,11 +23,11 @@ public class PropertiesLoader {
         }
     }
 
-    public static String getClientAnswerDisconect() {
+    public static String getClientAnswerDisconnect() {
         return properties.getProperty("client.answer.disconnect");
     }
 
-    public static String getServerAnswerDisconect() {
+    public static String getServerAnswerDisconnect() {
         return properties.getProperty("server.answer.disconnect");
     }
 

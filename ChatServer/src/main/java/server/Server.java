@@ -1,38 +1,53 @@
 package server;
 
+import closes.StreamClosers;
+import property.PropertiesLoader;
 import server.services.MessageService;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
+ * Class for which performs chat server functions
+ * This class can create new server socket and listening some port
+ * when he hear new client he add connection and start new compound
  * Created by igladush on 07.03.16.
  */
 public class Server  extends Thread {
     private final String ERROR_SOCKET_INIT = "I can't create socket";
     private final String ERROR_SOCKET_ACCEPT = "When I want wait error I have exception";
+    private final String SERVER_DISCONNECT_ANSWER = PropertiesLoader.getServerAnswerDisconect();
 
     private ConcurrentLinkedDeque<Compound> compounds = new ConcurrentLinkedDeque<>();
     private MessageService messageService = new MessageService();
     private int idNextUser = 0;
     private int port;
+    private boolean running=true;
+    private MessagesDistributor senderMessages;
+    private ServerSocketChannel serverSocket=null;
 
     public Server(int port) {
         this.port = port;
     }
 
-    //Method create server socket and listening port if it has new compound that add this compound
+    //Method create server serverSocket and listening port if it has new compound that add this compound
     //to all compounds list
     @Override
     public void run() {
-        MessagesDistributor senderMessages = new MessagesDistributor(this, messageService);
+        System.out.println();
+        senderMessages = new MessagesDistributor(this, messageService);
         senderMessages.start();
-        ServerSocket serverSocket;
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = ServerSocketChannel.open();
+            serverSocket.bind(new InetSocketAddress("172.18.192.177" ,port));
+            serverSocket.configureBlocking(false);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalArgumentException(ERROR_SOCKET_INIT);
@@ -42,13 +57,19 @@ public class Server  extends Thread {
         acceptUser(serverSocket);
     }
 
-    private void acceptUser(ServerSocket serverSocket) {
-        while (true) {
+    private void acceptUser(ServerSocketChannel serverSocket) {
+
+        while (running) {
             try {
-                Socket socket = serverSocket.accept();
-                Compound comp = new Compound(socket, idNextUser, this, messageService);
+
+                SocketChannel socket = serverSocket.accept();
+                if(socket==null){
+                    continue;
+                }
+                Compound comp = new Compound(socket.socket(), idNextUser, this, messageService);
                 compounds.add(comp);
                 comp.start();
+                System.out.println();
                 System.out.println("add new compounds he has id" + idNextUser++);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -63,5 +84,23 @@ public class Server  extends Thread {
 
     public Iterator<Compound> getAllUsers() {
         return compounds.iterator();
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public void close() {
+        System.out.println("exit1");
+        senderMessages.setWorking(false);
+        System.out.println("exit2");
+        for (Compound c : compounds) {
+            c.send(SERVER_DISCONNECT_ANSWER);
+            c.close();
+        }
+        System.out.println("exit3");
+        System.out.println(senderMessages.isAlive());
+        setRunning(false);
+        StreamClosers.closeStream(serverSocket);
     }
 }

@@ -1,24 +1,27 @@
 package server;
 
+import closes.StreamClosers;
 import model.Message;
 import property.PropertiesLoader;
 import server.services.MessageService;
 
 
-import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Properties;
 
 
 /**
+ * This class model one compound with server
+ * this class can send message use socked
+ * this class can get new message from compound
  * Created by igladush on 07.03.16.
  */
 public class Compound extends Thread {
-    private final String ERROR_READ_OR_WRITE = "When I readd or write I have error";
-    private final String ERROR_CLOSE_STREAM = "When I close stream  I have ERROR";
+    private final String ERROR_READ_OR_WRITE = "When I read or write I have error";
+    private final String CLIENT_DISCONNECT_KEY = PropertiesLoader.getClientAnswerDisconect();
+    private final String SERVER_DISCONNECT_KEY = PropertiesLoader.getServerAnswerDisconect();
 
     private MessageService messageService;
     private DataInputStream reader;
@@ -26,7 +29,7 @@ public class Compound extends Thread {
     private Socket socket;
     private Server server;
     private int idCompound;
-
+    private boolean running=false;
     public int getIdCompound() {
         return this.idCompound;
     }
@@ -76,47 +79,48 @@ public class Compound extends Thread {
     /**
      * this method create for read all message from one compound
      * when co,pound send exit word, this method send secret word for client
-     * this word signals client, that server stopped this socket correct
+     * this word signals client, that server stopped this serverSocket correct
      */
     private void readWhileNotInterupted() {
 
-        String clientExitWord = PropertiesLoader.getClientAnswerDisconect();
         String message;
-
-        while (true) try {
-            message = reader.readUTF();
-            System.out.println(message);
-
-            if (clientExitWord.equals(message)) {
-                writer.writeUTF(PropertiesLoader.getServerAnswerDisconect());
+        while (running)
+            try {
+                if (reader.available() > 0) {
+                    message = reader.readUTF();
+                    System.out.println(message);
+                    if (CLIENT_DISCONNECT_KEY.equals(message)) {
+                        writer.writeUTF(SERVER_DISCONNECT_KEY);
+                        break;
+                    }
+                    messageService.pushMessage(new Message(message, idCompound));
+                }
+            } catch (IOException e) {
+                System.out.println(ERROR_READ_OR_WRITE);
+                e.printStackTrace();
+                server.removeCompound(this);
                 break;
             }
-            messageService.pushMessage(new Message(message, idCompound));
-        } catch (IOException e) {
-            System.out.println(ERROR_READ_OR_WRITE);
-            e.printStackTrace();
-            server.removeCompound(this);
-            break;
-        }
 
     }
 
     //methods that close all stream
     private void closeAllStreams() {
-        closeStream(reader);
-        closeStream(writer);
+        StreamClosers.closeStream(reader);
+        StreamClosers.closeStream(writer);
     }
 
-    private void closeStream(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                System.out.println(ERROR_CLOSE_STREAM);
-                e.printStackTrace();
-            }
-        }
-
+    public void close() {
+        setRunning(false);
+        send(SERVER_DISCONNECT_KEY);
     }
 
+    public boolean isRunning() {
+
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 }

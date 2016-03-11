@@ -1,6 +1,7 @@
 package model;
 
 /**
+ * This class allow safe information about author and text message
  * Created by igladush on 07.03.16.
  */
 public class Message {

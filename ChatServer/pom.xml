@@ -17,6 +17,11 @@
             <version>0.0-1</version>
 
         </dependency>
+        <dependency>
+            <groupId>com.vanya</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.0-1</version>
+        </dependency>
 
     </dependencies>
 

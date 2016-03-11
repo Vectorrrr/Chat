@@ -6,6 +6,8 @@ import server.services.MessageService;
 import java.util.Iterator;
 
 /**
+ * This class check all messages and if it find new message
+ * it send message user with the exception of athor this message
  * Created by igladush on 07.03.16.
  */
 public class MessagesDistributor extends Thread {
@@ -23,6 +25,7 @@ public class MessagesDistributor extends Thread {
      * besides author this message
      */
     public void run() {
+        System.out.println(1);
         while (working) {
             if (messageService.getCountMessage() > 0) {
                 Message m = messageService.popFirstMessage();
@@ -36,6 +39,10 @@ public class MessagesDistributor extends Thread {
                 }
             }
         }
+    }
+
+    public void setWorking(boolean working) {
+        this.working = working;
     }
 }
 
