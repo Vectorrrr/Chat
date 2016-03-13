@@ -1,6 +1,7 @@
 package server;
 
 import closes.StreamClosers;
+import model.Message;
 import property.PropertiesLoader;
 import server.services.MessageService;
 
@@ -31,7 +32,7 @@ public class Server  extends Thread {
     private int port;
     private boolean running=true;
     private MessagesDistributor senderMessages;
-    private ServerSocket serverSocket=null;
+    private ServerSocketChannel serverSocket=null;
 
     public Server(int port) {
         this.port = port;
@@ -41,13 +42,14 @@ public class Server  extends Thread {
     //to all compounds list
     @Override
     public void run() {
+
         System.out.println();
         senderMessages = new MessagesDistributor(this, messageService);
         senderMessages.start();
         try {
-            serverSocket =new ServerSocket(port);
-//            serverSocket.bind(new InetSocketAddress("172.18.107.158" ,port));
-//            serverSocket.configureBlocking(false);
+            serverSocket = ServerSocketChannel.open();
+            serverSocket.bind(new InetSocketAddress("172.18.107.158" ,port));
+            serverSocket.configureBlocking(false);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalArgumentException(ERROR_SOCKET_INIT);
@@ -57,19 +59,19 @@ public class Server  extends Thread {
         acceptUser(serverSocket);
     }
 
-    private void acceptUser(ServerSocket serverSocket) {
-
+    private void acceptUser(ServerSocketChannel serverSocket) {
+        System.out.println(serverSocket);
         while (running) {
             try {
-                Socket socket = serverSocket.accept();
-                if(socket==null){
-                    continue;
-                }
-                if(serverSocket.isClosed()){
+                if(!serverSocket.isOpen()){
                     running=false;
                     break;
                 }
-                Compound comp = new Compound(socket, idNextUser, this, messageService);
+                SocketChannel socket = serverSocket.accept();
+                if(socket==null){
+                    continue;
+                }
+                Compound comp = new Compound( socket.socket(), idNextUser, this, messageService);
                 compounds.add(comp);
                 comp.start();
                 System.out.println();
@@ -97,12 +99,13 @@ public class Server  extends Thread {
         System.out.println("exit1");
         senderMessages.setWorking(false);
         System.out.println("exit2");
-        for (Compound c : compounds) {
+        for(Compound c:compounds){
             c.close();
         }
-        System.out.println("exit3");
+//        System.out.println("exit3");
+//        sleep();
         System.out.println(senderMessages.isAlive());
         setRunning(false);
-        StreamClosers.closeStream(serverSocket);
+       StreamClosers.closeStream(serverSocket);
     }
 }

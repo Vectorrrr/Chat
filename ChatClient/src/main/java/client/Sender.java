@@ -23,6 +23,7 @@ public class Sender implements Runnable {
     @Override
     public void run() {
         BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
+
         try {
             String bye = PropertiesLoader.getClientAnswerDisconnect();
             DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
@@ -31,23 +32,19 @@ public class Sender implements Runnable {
 
             String message;
             while (running) {
-                System.out.println(11);
-                try {
-                    sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if ((message = keyboard.readLine()).length()>0) {
-                    System.out.println(12);
+
+                if (keyboard.ready()) {
+                    message=keyboard.readLine();
                     writer.writeUTF(message);
                     writer.flush();
                     if (bye.equals(message)) {
+                        System.out.println("EXITWORD");
                         running = false;
                         break;
                     }
                 }
             }
-            socket.shutdownOutput();
+//            socket.shutdownOutput();
             running = false;
         } catch (IOException e) {
             running = false;

@@ -37,6 +37,7 @@ public class Compound extends Thread {
 
     public Compound(Socket socket, int Id, Server server, MessageService messageService) {
         this.socket = socket;
+        System.out.println(socket);
         this.idCompound = Id;
         this.server = server;
         this.messageService = messageService;
@@ -48,6 +49,7 @@ public class Compound extends Thread {
     //todo close stream and delete compound
     public void send(String s) {
         System.out.println("ASDAS"+s);
+        System.out.println(writer);
         try {
             writer.writeUTF(s);
             writer.flush();
@@ -60,7 +62,9 @@ public class Compound extends Thread {
     @Override
     public void run() {
         createStreams();
+        System.out.println(1);
         readWhileNotInterupted();
+        System.out.println(2);
         closeAllStreams();
         System.out.println("I close all streams");
         server.removeCompound(this);
@@ -91,27 +95,27 @@ public class Compound extends Thread {
 
         String message;
         while (running) {
+//            System.out.println(running);
 
-            try {
-
-
-                message = reader.readUTF();
-                System.out.println(message);
-                if (CLIENT_DISCONNECT_KEY.equals(message)) {
-                    writer.writeUTF(SERVER_DISCONNECT_KEY);
-                    running = false;
-                    System.out.println(123123);
-                    break;
-                }
-                messageService.pushMessage(new Message(message, idCompound));
-
-            } catch (IOException e) {
-                System.out.println(ERROR_READ_OR_WRITE);
-                e.printStackTrace();
-                server.removeCompound(this);
-                break;
-            }
+//            try {
+//                message = reader.readUTF();
+//                System.out.println(message);
+//                if (CLIENT_DISCONNECT_KEY.equals(message)) {
+//                    writer.writeUTF(SERVER_DISCONNECT_KEY);
+//                    running = false;
+//                    System.out.println(123123);
+//                    break;
+//                }
+//                messageService.pushMessage(new Message(message, idCompound));
+//
+//            } catch (IOException e) {
+//                System.out.println(ERROR_READ_OR_WRITE);
+//                e.printStackTrace();
+//                server.removeCompound(this);
+//                break;
+//            }
         }
+        System.out.println("sfasfsf");
     }
 
     //methods that close all stream
@@ -123,7 +127,9 @@ public class Compound extends Thread {
     public void close() {
         setRunning(false);
         send(SERVER_DISCONNECT_KEY);
+        running=false;
     }
+
 
     public boolean isRunning() {
 
