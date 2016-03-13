@@ -2,10 +2,11 @@ package client;
 
 import property.PropertiesLoader;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+
+import static java.lang.Thread.sleep;
 
 /**
  * This class wait for message from user and send this message at server when user type message+enter
@@ -21,21 +22,29 @@ public class Sender implements Runnable {
 
     @Override
     public void run() {
-        Scanner keyboard = new Scanner(System.in);
+        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         try {
-            String bye = PropertiesLoader.getClientAnswerDisconect();
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            String bye = PropertiesLoader.getClientAnswerDisconnect();
+            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
 
             System.out.println("Type your message I send it to the server if you want exit write Bye");
 
             String message;
             while (running) {
-                message = keyboard.nextLine();
-                out.writeUTF(message);
-                out.flush();
-                if (bye.equals(message)) {
-                    running=false;
-                    break;
+                System.out.println(11);
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if ((message = keyboard.readLine()).length()>0) {
+                    System.out.println(12);
+                    writer.writeUTF(message);
+                    writer.flush();
+                    if (bye.equals(message)) {
+                        running = false;
+                        break;
+                    }
                 }
             }
             socket.shutdownOutput();
@@ -44,7 +53,7 @@ public class Sender implements Runnable {
             running = false;
             e.printStackTrace();
         }
-        keyboard.close();
+
     }
 
     public void setRunning(boolean running) {

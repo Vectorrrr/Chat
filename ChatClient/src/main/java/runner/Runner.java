@@ -26,7 +26,7 @@ public class Runner {
         client.runClient(serverPort, address);
 
         Timer timer = new Timer();
-        timer.schedule(client, 0, 100);
+        timer.schedule(client, 0, 1000);
         while (client.isRunning()) {
             yield();
 

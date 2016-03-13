@@ -20,8 +20,8 @@ import java.net.Socket;
  */
 public class Compound extends Thread {
     private final String ERROR_READ_OR_WRITE = "When I read or write I have error";
-    private final String CLIENT_DISCONNECT_KEY = PropertiesLoader.getClientAnswerDisconect();
-    private final String SERVER_DISCONNECT_KEY = PropertiesLoader.getServerAnswerDisconect();
+    private final String CLIENT_DISCONNECT_KEY = PropertiesLoader.getClientAnswerDisconnect();
+    private final String SERVER_DISCONNECT_KEY = PropertiesLoader.getServerAnswerDisconnect();
 
     private MessageService messageService;
     private DataInputStream reader;
@@ -29,7 +29,8 @@ public class Compound extends Thread {
     private Socket socket;
     private Server server;
     private int idCompound;
-    private boolean running=false;
+    private boolean running = true;
+
     public int getIdCompound() {
         return this.idCompound;
     }
@@ -46,11 +47,14 @@ public class Compound extends Thread {
      */
     //todo close stream and delete compound
     public void send(String s) {
+        System.out.println("ASDAS"+s);
         try {
             writer.writeUTF(s);
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("I send string"+ s);
     }
 
     @Override
@@ -58,8 +62,10 @@ public class Compound extends Thread {
         createStreams();
         readWhileNotInterupted();
         closeAllStreams();
+        System.out.println("I close all streams");
         server.removeCompound(this);
         System.out.println("I closed the clint " + this.idCompound);
+
     }
 
     private void createStreams() {
@@ -84,24 +90,28 @@ public class Compound extends Thread {
     private void readWhileNotInterupted() {
 
         String message;
-        while (running)
+        while (running) {
+
             try {
-                if (reader.available() > 0) {
-                    message = reader.readUTF();
-                    System.out.println(message);
-                    if (CLIENT_DISCONNECT_KEY.equals(message)) {
-                        writer.writeUTF(SERVER_DISCONNECT_KEY);
-                        break;
-                    }
-                    messageService.pushMessage(new Message(message, idCompound));
+
+
+                message = reader.readUTF();
+                System.out.println(message);
+                if (CLIENT_DISCONNECT_KEY.equals(message)) {
+                    writer.writeUTF(SERVER_DISCONNECT_KEY);
+                    running = false;
+                    System.out.println(123123);
+                    break;
                 }
+                messageService.pushMessage(new Message(message, idCompound));
+
             } catch (IOException e) {
                 System.out.println(ERROR_READ_OR_WRITE);
                 e.printStackTrace();
                 server.removeCompound(this);
                 break;
             }
-
+        }
     }
 
     //methods that close all stream

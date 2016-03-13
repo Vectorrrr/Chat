@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class Server  extends Thread {
     private final String ERROR_SOCKET_INIT = "I can't create socket";
     private final String ERROR_SOCKET_ACCEPT = "When I want wait error I have exception";
-    private final String SERVER_DISCONNECT_ANSWER = PropertiesLoader.getServerAnswerDisconect();
+    private final String SERVER_DISCONNECT_ANSWER = PropertiesLoader.getServerAnswerDisconnect();
 
     private ConcurrentLinkedDeque<Compound> compounds = new ConcurrentLinkedDeque<>();
     private MessageService messageService = new MessageService();
@@ -31,7 +31,7 @@ public class Server  extends Thread {
     private int port;
     private boolean running=true;
     private MessagesDistributor senderMessages;
-    private ServerSocketChannel serverSocket=null;
+    private ServerSocket serverSocket=null;
 
     public Server(int port) {
         this.port = port;
@@ -45,9 +45,9 @@ public class Server  extends Thread {
         senderMessages = new MessagesDistributor(this, messageService);
         senderMessages.start();
         try {
-            serverSocket = ServerSocketChannel.open();
-            serverSocket.bind(new InetSocketAddress("172.18.192.177" ,port));
-            serverSocket.configureBlocking(false);
+            serverSocket =new ServerSocket(port);
+//            serverSocket.bind(new InetSocketAddress("172.18.107.158" ,port));
+//            serverSocket.configureBlocking(false);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalArgumentException(ERROR_SOCKET_INIT);
@@ -57,16 +57,19 @@ public class Server  extends Thread {
         acceptUser(serverSocket);
     }
 
-    private void acceptUser(ServerSocketChannel serverSocket) {
+    private void acceptUser(ServerSocket serverSocket) {
 
         while (running) {
             try {
-
-                SocketChannel socket = serverSocket.accept();
+                Socket socket = serverSocket.accept();
                 if(socket==null){
                     continue;
                 }
-                Compound comp = new Compound(socket.socket(), idNextUser, this, messageService);
+                if(serverSocket.isClosed()){
+                    running=false;
+                    break;
+                }
+                Compound comp = new Compound(socket, idNextUser, this, messageService);
                 compounds.add(comp);
                 comp.start();
                 System.out.println();
@@ -95,7 +98,6 @@ public class Server  extends Thread {
         senderMessages.setWorking(false);
         System.out.println("exit2");
         for (Compound c : compounds) {
-            c.send(SERVER_DISCONNECT_ANSWER);
             c.close();
         }
         System.out.println("exit3");

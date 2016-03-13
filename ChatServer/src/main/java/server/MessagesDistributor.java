@@ -25,11 +25,11 @@ public class MessagesDistributor extends Thread {
      * besides author this message
      */
     public void run() {
-        System.out.println(1);
         while (working) {
             if (messageService.getCountMessage() > 0) {
                 Message m = messageService.popFirstMessage();
 
+                System.out.println("Send message "+m.getText());
                 Iterator<Compound> it = server.getAllUsers();
                 while (it.hasNext()) {
                     Compound compound = it.next();
@@ -39,6 +39,7 @@ public class MessagesDistributor extends Thread {
                 }
             }
         }
+        System.out.println("Stopped sender Messageeer");
     }
 
     public void setWorking(boolean working) {

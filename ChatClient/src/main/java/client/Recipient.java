@@ -4,6 +4,7 @@ import closes.StreamClosers;
 import property.PropertiesLoader;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -21,28 +22,33 @@ public class Recipient implements Runnable {
     }
 
     public void run() {
-        String exit = PropertiesLoader.getServerAnswerDisconect();
+        String exit = PropertiesLoader.getServerAnswerDisconnect();
         DataInputStream reader = null;
+        DataOutputStream writer=null;
         try {
             reader = new DataInputStream(socket.getInputStream());
+            writer=new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             running = false;
             e.printStackTrace();
         }
 
         while (running) {
-//            try {
-//                System.out.println(reader==null);
-                String text = "asd";
+            try {
+                System.out.println(1);
+                String text = reader.readUTF();
                 if (exit.equals(text)) {
+                    System.out.println(text);
+                    writer.writeUTF("OK");
                     running = false;
                     break;
                 }
-//                System.out.println(text);
-//            } catch (IOException e) {
-//                running = false;
-//                e.printStackTrace();
-//            }
+                System.out.println(text);
+
+            } catch (IOException e) {
+                running = false;
+                e.printStackTrace();
+            }
         }
         StreamClosers.closeStream(reader);
     }

@@ -45,6 +45,7 @@ public class Client extends TimerTask {
             recipient.setRunning(false);
             running = false;
         }
+        System.out.println(sender.isRunning()+"  "+recipient.isRunning());
     }
 
     public boolean isRunning() {

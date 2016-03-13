@@ -11,12 +11,7 @@
 
     <artifactId>server</artifactId>
     <dependencies>
-        <dependency>
-            <groupId>Vanya</groupId>
-            <artifactId>ChatUtils</artifactId>
-            <version>0.0-1</version>
 
-        </dependency>
         <dependency>
             <groupId>com.vanya</groupId>
             <artifactId>utils</artifactId>
