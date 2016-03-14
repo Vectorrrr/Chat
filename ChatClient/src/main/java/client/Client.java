@@ -1,11 +1,8 @@
 package client;
 
-import property.PropertiesLoader;
-
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.TimerTask;
 
 /**
@@ -38,14 +35,13 @@ public class Client extends TimerTask {
     @Override
     public void run() {
         if (!recipient.isRunning()) {
-            sender.setRunning(false);
+            sender.stopRunning();
             running = false;
         }
         if (!sender.isRunning()) {
-            recipient.setRunning(false);
+            recipient.stopRunning();
             running = false;
         }
-       System.out.println(sender.isRunning()+"  "+recipient.isRunning());
     }
 
     public boolean isRunning() {

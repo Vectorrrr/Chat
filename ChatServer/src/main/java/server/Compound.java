@@ -46,30 +46,34 @@ public class Compound extends Thread {
     /**
      * This method send some string for this Compound
      */
-    //todo close stream and delete compound
     public void send(String s) {
-        System.out.println("ASDAS"+s);
-        System.out.println(writer);
         try {
             writer.writeUTF(s);
             writer.flush();
         } catch (IOException e) {
+            running = false;
             e.printStackTrace();
         }
-        System.out.println("I send string"+ s);
     }
 
     @Override
     public void run() {
         createStreams();
-        System.out.println(1);
         readWhileNotInterupted();
-        System.out.println(2);
         closeAllStreams();
-        System.out.println("I close all streams");
         server.removeCompound(this);
         System.out.println("I closed the clint " + this.idCompound);
 
+    }
+
+    public void close() {
+        stopRunning();
+        send(SERVER_DISCONNECT_KEY);
+        running = false;
+    }
+
+    public void stopRunning() {
+        this.running = false;
     }
 
     private void createStreams() {
@@ -85,37 +89,31 @@ public class Compound extends Thread {
         }
     }
 
-
     /**
      * this method create for read all message from one compound
      * when co,pound send exit word, this method send secret word for client
      * this word signals client, that server stopped this serverSocket correct
      */
     private void readWhileNotInterupted() {
-
         String message;
         while (running) {
-//            System.out.println(running);
-
-//            try {
-//                message = reader.readUTF();
-//                System.out.println(message);
-//                if (CLIENT_DISCONNECT_KEY.equals(message)) {
-//                    writer.writeUTF(SERVER_DISCONNECT_KEY);
-//                    running = false;
-//                    System.out.println(123123);
-//                    break;
-//                }
-//                messageService.pushMessage(new Message(message, idCompound));
-//
-//            } catch (IOException e) {
-//                System.out.println(ERROR_READ_OR_WRITE);
-//                e.printStackTrace();
-//                server.removeCompound(this);
-//                break;
-//            }
+            try {
+                message = reader.readUTF();
+                System.out.println(message);
+                if (CLIENT_DISCONNECT_KEY.equals(message) && running) {
+                    writer.writeUTF(SERVER_DISCONNECT_KEY);
+                    running = false;
+                    System.out.println(123123);
+                    break;
+                }
+                messageService.addLastMessage(new Message(message, idCompound));
+            } catch (IOException e) {
+                System.out.println(ERROR_READ_OR_WRITE);
+                e.printStackTrace();
+                server.removeCompound(this);
+                break;
+            }
         }
-        System.out.println("sfasfsf");
     }
 
     //methods that close all stream
@@ -124,19 +122,4 @@ public class Compound extends Thread {
         StreamClosers.closeStream(writer);
     }
 
-    public void close() {
-        setRunning(false);
-        send(SERVER_DISCONNECT_KEY);
-        running=false;
-    }
-
-
-    public boolean isRunning() {
-
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
 }

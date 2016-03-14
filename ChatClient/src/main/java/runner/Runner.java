@@ -2,16 +2,13 @@ package runner;
 
 import client.Client;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.Scanner;
 import java.util.Timer;
 
 import static java.lang.Thread.yield;
 
 /**
- * this class run client threand and always 100 second he run function checking correct state i
+ * this class run client thread and always 100 second he run function checking correct state i
  * one of main stream
  * Created by igladush on 09.03.16.
  */
@@ -27,6 +24,7 @@ public class Runner {
 
         Timer timer = new Timer();
         timer.schedule(client, 0, 3000);
+
         while (client.isRunning()) {
             yield();
 

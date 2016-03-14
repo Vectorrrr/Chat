@@ -8,7 +8,7 @@ import java.io.IOException;
  * Created by igladush on 11.03.16.
  */
 public class StreamClosers {
-    static final String CLOSE_ERROR = "When I close stream I have Error";
+    private static final String CLOSE_ERROR = "When I close stream I have Error";
 
     public static void closeStream(Closeable stream) {
         if (stream != null) {

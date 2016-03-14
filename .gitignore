@@ -1,5 +1,4 @@
-/jars
-/.idea
+*.idea
 /ChatClient/ChatClient.iml
 
 /ChatServer/ChatServer.iml
