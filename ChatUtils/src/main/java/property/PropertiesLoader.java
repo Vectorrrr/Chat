@@ -14,7 +14,7 @@ public class PropertiesLoader {
     static {
 
         try {
-            properties.load(new FileReader("libs/protocolConstans.properties"));
+            properties.load(new FileReader("libs/protocol.constans.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

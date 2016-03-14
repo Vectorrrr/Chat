@@ -2,6 +2,7 @@ package closes;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.Socket;
 
 /**
  * This class util class for closing streams
@@ -14,6 +15,16 @@ public class StreamClosers {
         if (stream != null) {
             try {
                 stream.close();
+            } catch (IOException e) {
+                System.err.println(CLOSE_ERROR);
+                e.printStackTrace();
+            }
+        }
+    }
+    public static void closeStream(Socket socket){
+        if(socket!=null && !socket.isClosed()){
+            try {
+                socket.close();
             } catch (IOException e) {
                 System.err.println(CLOSE_ERROR);
                 e.printStackTrace();

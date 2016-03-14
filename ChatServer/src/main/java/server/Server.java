@@ -1,5 +1,6 @@
 package server;
 
+import closes.StreamClosers;
 import server.services.MessageService;
 
 import java.io.IOException;
@@ -88,5 +89,6 @@ public class Server  extends Thread {
                 throw new IllegalArgumentException(ERROR_SOCKET_ACCEPT);
             }
         }
+        StreamClosers.closeStream(serverSocket);
     }
 }

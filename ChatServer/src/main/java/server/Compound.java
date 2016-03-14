@@ -24,7 +24,6 @@ public class Compound extends Thread {
     private final String SERVER_DISCONNECT_KEY = PropertiesLoader.getServerAnswerDisconnect();
 
     private MessageService messageService;
-    private DataInputStream reader;
     private DataOutputStream writer;
     private Socket socket;
     private Server server;
@@ -37,7 +36,6 @@ public class Compound extends Thread {
 
     public Compound(Socket socket, int Id, Server server, MessageService messageService) {
         this.socket = socket;
-        System.out.println(socket);
         this.idCompound = Id;
         this.server = server;
         this.messageService = messageService;
@@ -63,6 +61,7 @@ public class Compound extends Thread {
         closeAllStreams();
         server.removeCompound(this);
         System.out.println("I closed the clint " + this.idCompound);
+        StreamClosers.closeStream(socket);
 
     }
 
@@ -82,11 +81,6 @@ public class Compound extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            reader = new DataInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -96,8 +90,9 @@ public class Compound extends Thread {
      */
     private void readWhileNotInterupted() {
         String message;
-        while (running) {
-            try {
+        try (DataInputStream reader=new DataInputStream(socket.getInputStream())){
+            while (running) {
+
                 message = reader.readUTF();
                 System.out.println(message);
                 if (CLIENT_DISCONNECT_KEY.equals(message) && running) {
@@ -107,18 +102,18 @@ public class Compound extends Thread {
                     break;
                 }
                 messageService.addLastMessage(new Message(message, idCompound));
-            } catch (IOException e) {
-                System.out.println(ERROR_READ_OR_WRITE);
-                e.printStackTrace();
-                server.removeCompound(this);
-                break;
+
             }
+        } catch (IOException e) {
+            System.out.println(ERROR_READ_OR_WRITE);
+            e.printStackTrace();
+            server.removeCompound(this);
+
         }
     }
 
     //methods that close all stream
     private void closeAllStreams() {
-        StreamClosers.closeStream(reader);
         StreamClosers.closeStream(writer);
     }
 

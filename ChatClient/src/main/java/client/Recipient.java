@@ -23,9 +23,8 @@ public class Recipient implements Runnable {
 
     @Override
     public void run() {
-        try {
-            DataInputStream reader = new DataInputStream(socket.getInputStream());
-            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+        try (DataInputStream reader = new DataInputStream(socket.getInputStream());
+             DataOutputStream writer = new DataOutputStream(socket.getOutputStream())){
             while (running) {
                 String text = reader.readUTF();
                 if (SERVER_EXIT_WORD.equals(text)) {

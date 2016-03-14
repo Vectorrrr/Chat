@@ -23,11 +23,10 @@ public class Runner {
         client.runClient(serverPort, address);
 
         Timer timer = new Timer();
-        timer.schedule(client, 0, 3000);
+        timer.schedule(client, 0, 100);
 
         while (client.isRunning()) {
             yield();
-
         }
 
         sc.close();
