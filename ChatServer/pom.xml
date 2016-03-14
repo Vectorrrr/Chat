@@ -11,11 +11,11 @@
 
     <artifactId>server</artifactId>
     <dependencies>
-        <dependency>
-            <groupId>Vanya</groupId>
-            <artifactId>ChatUtils</artifactId>
-            <version>0.0-1</version>
 
+        <dependency>
+            <groupId>com.vanya</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.0-1</version>
         </dependency>
 
     </dependencies>

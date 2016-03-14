@@ -2,48 +2,57 @@ package client;
 
 import property.PropertiesLoader;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
+import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
+
 
 /**
+ * This class wait for message from user and send this message at server when user type message+enter
  * Created by igladush on 11.03.16.
  */
 public class Sender implements Runnable {
-    private boolean isRun=true;
-    private Socket socket =new Socket();
+    private static final String BYE = PropertiesLoader.getClientAnswerDisconnect();
 
-    public Sender(Socket socket){
-            this.socket=socket;
+    private boolean running = true;
+    private Socket socket = new Socket();
+
+    public Sender(Socket socket) {
+        this.socket = socket;
     }
 
     @Override
     public void run() {
+        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
-        Scanner keyboard = new Scanner(System.in);
         try {
-            String bye = PropertiesLoader.getClientAnswerDisconect();
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
+            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
 
             System.out.println("Type your message I send it to the server if you want exit write Bye");
 
             String message;
-            while (true) {
-                message = keyboard.nextLine();
-                out.writeUTF(message);
-                out.flush();
-                if (bye.equals(message)) {
-                    break;
+            while (running) {
+                if (keyboard.ready()) {
+                    message = keyboard.readLine();
+                    writer.writeUTF(message);
+                    writer.flush();
+                    if (BYE.equals(message)) {
+                        running = false;
+                        break;
+                    }
                 }
             }
-            socket.shutdownOutput();
-
         } catch (IOException e) {
+            running = false;
             e.printStackTrace();
         }
-        keyboard.close();
+
+    }
+
+    public void stopRunning() {
+        this.running = false;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }

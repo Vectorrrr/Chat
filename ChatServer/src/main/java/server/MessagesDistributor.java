@@ -1,17 +1,21 @@
 package server;
 
 import model.Message;
+import property.PropertiesLoader;
 import server.services.MessageService;
 
 import java.util.Iterator;
 
 /**
+ * This class check all messages and if it find new message
+ * it send message user with the exception of author this message
  * Created by igladush on 07.03.16.
  */
 public class MessagesDistributor extends Thread {
+    private static final String SERVER_DISCONNECT_WORD = PropertiesLoader.getServerAnswerDisconnect();
     private Server server;
     private MessageService messageService;
-    private boolean working = true;
+    private boolean running = true;
 
     public MessagesDistributor(Server server, MessageService messageService) {
         this.server = server;
@@ -23,19 +27,28 @@ public class MessagesDistributor extends Thread {
      * besides author this message
      */
     public void run() {
-        while (working) {
+        Message m;
+        while (running) {
             if (messageService.getCountMessage() > 0) {
-                Message m = messageService.popFirstMessage();
-
+                m = messageService.popFirstMessage();
+                String text = m.getText();
+                System.out.println(text);
+                if (SERVER_DISCONNECT_WORD.equals(text)) {
+                    running = false;
+                }
                 Iterator<Compound> it = server.getAllUsers();
                 while (it.hasNext()) {
                     Compound compound = it.next();
                     if (m.getIdAuthor() != compound.getIdCompound()) {
-                        compound.send(m.getText());
+                        compound.send(text);
                     }
                 }
             }
         }
+    }
+
+    public void stopRunning() {
+        this.running = false;
     }
 }
 

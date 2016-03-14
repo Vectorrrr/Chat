@@ -68,8 +68,8 @@
             <version>4.12</version>
         </dependency>
         <dependency>
-            <groupId>Vanya</groupId>
-            <artifactId>ChatUtils</artifactId>
+            <groupId>com.vanya</groupId>
+            <artifactId>utils</artifactId>
             <version>0.0-1</version>
         </dependency>
     </dependencies>
