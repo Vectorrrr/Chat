@@ -42,9 +42,6 @@ public class Runner {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for (int i = 0; i < 10; ++i) {
-            yield();
-        }
         System.out.println(socket);
 
 
